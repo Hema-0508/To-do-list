@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motivational To-Do List</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #48dbfb;
+            --accent: #feca57;
+            --dark: #576574;
+            --light: #f7f7f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff9966, #ff5e62);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            color: var(--light);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .quote {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 30px;
+            color: var(--light);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"], input[type="time"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--accent);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+
+        .task-item.completed::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            width: calc(100% - 40px);
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .task-text {
+            flex: 1;
+            margin-right: 15px;
+            word-break: break-word;
+            cursor: pointer;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .edit-btn {
+            background-color: rgba(72, 219, 251, 0.8);
+        }
+
+        .delete-btn {
+            background-color: rgba(255, 107, 107, 0.8);
+        }
+
+        .task-item.deleting {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <div class="quote" id="quote"></div>
+        
+        <div class="input-section">
+            <input type="text" id="task-input" placeholder="Add a new task...">
+            <input type="time" id="task-time">
+            <button id="add-task-btn">Add Task</button>
+        </div>
+        
+        <ul id="task-list" class="task-list">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+        
+        <div class="footer">
+            Click on tasks to mark as complete
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('task-input');
+            const taskTime = document.getElementById('task-time');
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const taskList = document.getElementById('task-list');
+            const quoteElement = document.getElementById('quote');
+
+            // Load tasks and quote from localStorage
+            loadTasks();
+            loadQuote();
+
+            // Add task event listener
+            addTaskBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+
+            function addTask() {
+                const taskText = taskInput.value.trim();
+                const reminderTime = taskTime.value;
+
+                if (taskText === '') return;
+
+                const taskId = Date.now().toString();
+                const task = {
+                    id: taskId,
+                    text: taskText,
+                    completed: false,
+                    reminder: reminderTime
+                };
+
+                // Add to UI
+                renderTask(task);
+
+                // Save to localStorage
+                saveTask(task);
+
+                // Clear input
+                taskInput.value = '';
+                taskTime.value = '';
+                taskInput.focus();
+
+                // Set reminder
+                if (reminderTime) {
+                    setReminder(task);
+                }
+            }
+
+            function renderTask(task) {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.dataset.id = task.id;
+
+                taskItem.innerHTML = `
+                    <div class="task-text">${task.text} ${task.reminder ? `- Reminder: ${task.reminder}` : ''}</div>
+                    <div class="task-actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                `;
+
+                // Add task to the beginning of the list
+                taskList.insertBefore(taskItem, taskList.firstChild);
+
+                // Add event listeners for the new task
+                addTaskEventListeners(taskItem);
+            }
+
+            function addTaskEventListeners(taskItem) {
+                const taskText = taskItem.querySelector('.task-text');
+                const editBtn = taskItem.querySelector('.edit-btn');
+                const deleteBtn = taskItem.querySelector('.delete-btn');
+
+                // Toggle complete
+                taskText.addEventListener('click', () => toggleComplete(taskItem));
+
+                // Edit task
+                editBtn.addEventListener('click', () => editTask(taskItem));
+
+                // Delete task
+                deleteBtn.addEventListener('click', () => deleteTask(taskItem));
+            }
+
+            function toggleComplete(taskItem) {
+                taskItem.classList.toggle('completed');
+
+                // Update in localStorage
+                const taskId = taskItem.dataset.id;
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+                if (tasks[taskId]) {
+                    tasks[taskId].completed = !tasks[taskId].completed;
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                }
+            }
+
+            function editTask(taskItem) {
+                const taskText = taskItem.querySelector('.task-text');
+                const currentText = taskText.textContent.split(' - ')[0].trim();
+                const currentReminder = taskText.textContent.split(' - Reminder: ')[1] || '';
+
+                const newText = prompt('Edit your task:', currentText);
+                const newReminder = prompt('Set a new reminder time (HH:MM):', currentReminder);
+
+                if (newText && newText.trim() !== '' && newText !== currentText) {
+                    taskText.innerHTML = `${newText.trim()} ${newReminder ? `- Reminder: ${newReminder}` : ''}`;
+
+                    // Update in localStorage
+                    const taskId = taskItem.dataset.id;
+                    const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+                    if (tasks[taskId]) {
+                        tasks[taskId].text = newText.trim();
+                        tasks[taskId].reminder = newReminder;
+                        localStorage.setItem('tasks', JSON.stringify(tasks));
+                    }
+
+                    // Reset reminder if changed
+                    if (newReminder !== currentReminder) {
+                        clearReminder(taskId);
+                        if (newReminder) {
+                            setReminder({ ...tasks[taskId], id: taskId });
+                        }
+                    }
+                }
+            }
+
+            function deleteTask(taskItem) {
+                taskItem.classList.add('deleting');
+
+                setTimeout(() => {
+                    // Remove from localStorage
+                    const taskId = taskItem.dataset.id;
+                    const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+                    if (tasks[taskId]) {
+                        clearReminder(taskId);
+                        delete tasks[taskId];
+                        localStorage.setItem('tasks', JSON.stringify(tasks));
+                    }
+
+                    // Remove from UI
+                    taskItem.remove();
+                }, 300);
+            }
+
+            function loadTasks() {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+
+                // Convert to array, sort by ID (which is timestamp) to show newest first
+                const sortedTasks = Object.values(tasks).sort((a, b) => b.id - a.id);
+
+                sortedTasks.forEach(task => renderTask(task));
+            }
+
+            function saveTask(task) {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+                tasks[task.id] = task;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+
+            function setReminder(task) {
+                const reminderTime = task.reminder.split(':');
+                const reminderDate = new Date();
+                reminderDate.setHours(reminderTime[0]);
+                reminderDate.setMinutes(reminderTime[1]);
+                reminderDate.setSeconds(0);
+
+                const now = new Date();
+                const timeToReminder = reminderDate - now;
+
+                if (timeToReminder > 0) {
+                    setTimeout(() => {
+                        alert(`Reminder: It's time to work on "${task.text}"!`);
+                    }, timeToReminder);
+                }
+            }
+
+            function clearReminder(taskId) {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+                if (tasks[taskId]) {
+                    const reminderTime = tasks[taskId].reminder;
+                    if (reminderTime) {
+                        const reminderDate = new Date();
+                        const reminderParts = reminderTime.split(':');
+                        reminderDate.setHours(reminderParts[0]);
+                        reminderDate.setMinutes(reminderParts[1]);
+                        reminderDate.setSeconds(0);
+
+                        const now = new Date();
+                        const timeToReminder = reminderDate - now;
+
+                        if (timeToReminder > 0) {
+                            clearTimeout(timeToReminder);
+                        }
+                    }
+                }
+            }
+
+            function loadQuote() {
+                const quotes = [
+                    
+                    "Don't watch the clock; do what it does. Keep going. - Sam Levenson",
+                    "The only way to do great work is to love what you do. - Steve Jobs",
+                    
+                ];
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                quoteElement.textContent = randomQuote;
+            }
+        });
+    </script>
+</body>
+</html>
